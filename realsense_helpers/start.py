@@ -5,10 +5,13 @@ Modified from various sources including:
 - https://github.com/IntelRealSense/librealsense/issues/8388#issuecomment-782395443
 """
 import asyncio
+import os
 import time
+from datetime import datetime
 from typing import Collection
 
 import aiofiles
+import cv2
 import numpy as np
 import pyrealsense2 as rs
 from loguru import logger
@@ -130,10 +133,16 @@ async def capture_frames(
     color_image = np.asanyarray(color_frame.get_data())
 
     if write_to_disk:
-        async with aiofiles.open(f"{device_label}_depth.npy", "wb") as f:
-            await f.write(depth_image)
-        async with aiofiles.open(f"{device_label}_color.npy", "wb") as f:
-            await f.write(color_image)
+        dir_name = device_label.strip().replace(" ", "_")
+        os.makedirs(dir_name, exist_ok=True)
+        # Create images
+        timestamp = datetime.now().strftime("%Y-%m-%d-%H-%M-%S-%f")
+        depth_image_path = os.path.join(dir_name, f"{timestamp}_depth.png")
+        color_image_path = os.path.join(dir_name, f"{timestamp}_color.png")
+
+        cv2.imwrite(depth_image_path, depth_image)
+        cv2.imwrite(color_image_path, color_image)
+
         logger.debug(f"Saved {device_label} frames to disk.")
 
 
@@ -149,7 +158,9 @@ async def async_main(settings: RealSenseSettings):
     metadata = [
         get_metadata(device, pipeline) for device, pipeline in zip(devices, pipelines)
     ]
-    device_labels = [f"{meta.name} {meta.serial_number}" for meta in metadata]
+    device_labels = [
+        f"{meta.name.split(' ')[-1]}_{meta.serial_number}" for meta in metadata
+    ]
 
     # TODO: auto exposure, white balance, etc. per camera settings
     rs.option.enable_auto_exposure = True
@@ -157,15 +168,15 @@ async def async_main(settings: RealSenseSettings):
     # Warmup the devices
     warmup(pipelines)
 
-    async_tasks = []
-
-    for device_label, pipeline in zip(device_labels, pipelines):
-        async_tasks.append(
-            asyncio.create_task(
-                capture_frames(pipeline, device_label, write_to_disk=False)
+    for _ in range(5):
+        async_tasks = []
+        for device_label, pipeline in zip(device_labels, pipelines):
+            async_tasks.append(
+                asyncio.create_task(
+                    capture_frames(pipeline, device_label, write_to_disk=True)
+                )
             )
-        )
-    await asyncio.gather(*async_tasks)
+        await asyncio.gather(*async_tasks)
 
 
 def main(settings: RealSenseSettings):
