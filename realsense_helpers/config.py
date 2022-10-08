@@ -1,7 +1,10 @@
 from dataclasses import dataclass
+from typing import List, Tuple
+
+import pyrealsense2 as rs
 
 
-@dataclass
+@dataclass(frozen=True)
 class RealSenseSettings:
     """
     Settings for the RealSense helpers.
@@ -41,3 +44,24 @@ class RealSenseSettings:
                 raise TypeError(f"{attr} must be an integer.")
             if getattr(self, attr) < 0:
                 raise ValueError(f"{attr} must be a positive integer.")
+
+    @property
+    def streams(self) -> List[Tuple[rs.stream, int, int, rs.format, int]]:
+        """
+        Return a tuple of the streams that are enabled in this settings object.
+
+        Returns
+        -------
+        Tuple[rs.stream, int, int, rs.format, int]
+            The stream type, width, height, data type, and fps.
+        """
+        if not (self.enable_depth and self.enable_color):
+            raise NotImplementedError(
+                f"Only streaming both depth and color is supported at the moment."
+            )
+
+        streams = [
+            (rs.stream.depth, self.width, self.height, rs.format.z16, self.fps),
+            (rs.stream.color, self.width, self.height, rs.format.bgr8, self.fps),
+        ]
+        return streams

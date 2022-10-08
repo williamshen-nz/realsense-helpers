@@ -1,8 +1,9 @@
-from typing import NamedTuple, List
+from dataclasses import dataclass
+from typing import List
 
 
-class RealSenseMetadata(NamedTuple):
-
+@dataclass(frozen=True)
+class RealSenseMetadata:
     name: str
     serial_number: str
 
@@ -14,4 +15,7 @@ class RealSenseMetadata(NamedTuple):
     depth_scale: float
 
     # 3x3 intrinsic matrix as a list of lists
-    intrimsic_matrix: List[List[float]]
+    intrinsic_matrix: List[List[float]]
+
+    # Distortion coefficients
+    distortion_coefficients: List[float]
