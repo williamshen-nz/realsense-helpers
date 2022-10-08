@@ -1,0 +1,18 @@
+# Jetbrains IDEs
+.idea/
+
+# General cruft
+.venv
+venv
+.coverage
+.coverage.*
+.DS_Store
+__pycache__
+.ipynb_checkpoints
+
+# Packaging artifacts
+build/
+dist/
+
+# Config stuff which should stay secret
+.env

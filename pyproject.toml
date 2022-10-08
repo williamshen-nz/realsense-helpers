@@ -1,0 +1,58 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "realsense-helpers"
+description = "Helpers for working with Intel RealSense cameras."
+readme = "README.md"
+requires-python = ">=3.8"
+license = "MIT"
+authors = [
+    { name = "William Shen", email = "willshen@mit.edu" },
+]
+classifiers = [
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3.8",
+  "License :: OSI Approved :: MIT License",
+]
+keywords = ["robotics", "computer vision", "realsense", "cameras"]
+dependencies = [
+    "pyrealsense2",
+    "opencv-python",
+]
+dynamic = ["version"]
+
+[project.urls]
+Homepage = "https://github.com/williamshen-nz/realsense_helpers"
+
+[project.optional-dependencies]
+dev = [
+    # Lint
+    "isort",
+    "black",
+    "mypy",
+    # Unit tests
+    "pytest",
+    "pytest-cov",
+    # Documentation
+    "sphinx",
+    "sphinx-rtd-theme",
+    "sphinxcontrib-apidoc",
+]
+
+[tool.isort]
+profile = "black"
+
+[tool.black]
+target-version = ['py38']
+
+[tool.hatch.version]
+path = "realsense_helpers/__init__.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["realsense_helpers"]
+
+[tool.hatch.metadata]
+allow-direct-references = true
+
