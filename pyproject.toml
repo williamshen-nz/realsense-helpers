@@ -18,7 +18,8 @@ classifiers = [
 ]
 keywords = ["robotics", "computer vision", "realsense", "cameras"]
 dependencies = [
-    "pyrealsense2",
+    "pyrealsense2; platform_system == 'Linux'",
+    "pyrealsense2-macosx; platform_system == 'Darwin'",
     "opencv-python",
 ]
 dynamic = ["version"]
